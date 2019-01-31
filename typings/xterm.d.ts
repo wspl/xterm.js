@@ -588,6 +588,8 @@ declare module 'xterm' {
      */
     selectLines(start: number, end: number): void;
 
+    selectRange(startX: number, startY: number, endX: number, endY: number): void;
+
     /*
      * Disposes of the terminal, detaching it from the DOM and removing any
      * active listeners.

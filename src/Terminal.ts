@@ -1502,6 +1502,12 @@ export class Terminal extends EventEmitter implements ITerminal, IDisposable, II
     }
   }
 
+  public selectRange(startX: number, startY: number, endX: number, endY: number): void {
+    if (this.selectionManager) {
+      this.selectionManager.selectRange(startX, startY, endX, endY);
+    }
+  }
+
   /**
    * Handle a keydown event
    * Key Resources:

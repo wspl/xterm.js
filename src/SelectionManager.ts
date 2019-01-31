@@ -246,11 +246,13 @@ export class SelectionManager extends EventEmitter implements ISelectionManager 
    * Queues a refresh, redrawing the selection on the next opportunity.
    * @param isNewSelection Whether the selection should be registered as a new
    * selection on Linux.
+   * @param fromUser  Whether the selection is triggered by user
+   * (dblclick word selection is not included)
    */
-  public refresh(isNewSelection?: boolean): void {
+  public refresh(isNewSelection?: boolean, fromUser?: boolean): void {
     // Queue the refresh for the renderer
     if (!this._refreshAnimationFrame) {
-      this._refreshAnimationFrame = window.requestAnimationFrame(() => this._refresh());
+      this._refreshAnimationFrame = window.requestAnimationFrame(() => this._refresh(fromUser));
     }
 
     // If the platform is Linux and the refresh call comes from a mouse event,
@@ -267,12 +269,13 @@ export class SelectionManager extends EventEmitter implements ISelectionManager 
    * Fires the refresh event, causing consumers to pick it up and redraw the
    * selection state.
    */
-  private _refresh(): void {
+  private _refresh(fromUser: Boolean = false): void {
     this._refreshAnimationFrame = null;
     this.emit('refresh', {
       start: this._model.finalSelectionStart,
       end: this._model.finalSelectionEnd,
-      columnSelectMode: this._activeSelectionMode === SelectionMode.COLUMN
+      columnSelectMode: this._activeSelectionMode === SelectionMode.COLUMN,
+      fromUser
     });
   }
 
@@ -327,6 +330,18 @@ export class SelectionManager extends EventEmitter implements ISelectionManager 
     end = Math.min(end, this._terminal.buffer.lines.length - 1);
     this._model.selectionStart = [0, start];
     this._model.selectionEnd = [this._terminal.cols, end];
+    this.refresh();
+    this._terminal.emit('selection');
+  }
+
+  public selectRange(startX: number, startY: number, endX: number, endY: number): void {
+    this._model.clearSelection();
+    startX = Math.max(startX, 0);
+    startY = Math.max(startY, 0);
+    endX = Math.min(endX, this._terminal.cols - 1);
+    endY = Math.min(endY, this._terminal.buffer.lines.length - 1);
+    this._model.selectionStart = [startX, startY];
+    this._model.selectionEnd = [endX, endY];
     this.refresh();
     this._terminal.emit('selection');
   }
@@ -563,7 +578,7 @@ export class SelectionManager extends EventEmitter implements ISelectionManager 
     // Set the initial selection end based on the mouse coordinates
     this._model.selectionEnd = this._getMouseBufferCoords(event);
     if (!this._model.selectionEnd) {
-      this.refresh(true);
+      this.refresh(true, true);
       return;
     }
 
@@ -606,7 +621,7 @@ export class SelectionManager extends EventEmitter implements ISelectionManager 
     if (!previousSelectionEnd ||
       previousSelectionEnd[0] !== this._model.selectionEnd[0] ||
       previousSelectionEnd[1] !== this._model.selectionEnd[1]) {
-      this.refresh(true);
+      this.refresh(true, true);
     }
   }
 

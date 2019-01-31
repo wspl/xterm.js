@@ -95,6 +95,9 @@ export class Terminal implements ITerminalApi {
   public selectLines(start: number, end: number): void {
     this._core.selectLines(start, end);
   }
+  public selectRange(startX: number, startY: number, endX: number, endY: number): void {
+    this._core.selectRange(startX, startY, endX, endY);
+  }
   public dispose(): void {
     this._core.dispose();
   }

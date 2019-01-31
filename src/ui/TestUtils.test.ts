@@ -23,7 +23,10 @@ export class MockTerminal implements ITerminal {
   addMarker(cursorYOffset: number): IMarker {
     throw new Error('Method not implemented.');
   }
-  selectLines(start: number, end: number): void {
+  selectLines(startX: number, endY: number): void {
+    throw new Error('Method not implemented.');
+  }
+  selectRange(startX: number, startY: number, endX: number, endY: number): void {
     throw new Error('Method not implemented.');
   }
   scrollToLine(line: number): void {
