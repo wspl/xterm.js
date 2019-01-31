@@ -47,7 +47,7 @@ export class SelectionRenderLayer extends BaseRenderLayer {
   public onSelectionChanged(terminal: ITerminal, start: [number, number], end: [number, number], columnSelectMode: boolean): void {
     // Selection has not changed
     if (!this._didStateChange(start, end, columnSelectMode, terminal.buffer.ydisp)) {
-      return;
+      // return;
     }
 
     // Remove all selections
