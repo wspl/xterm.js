@@ -137,7 +137,7 @@ export class Terminal extends EventEmitter implements ITerminal, IDisposable, II
   public cursorState: number;
   public cursorHidden: boolean;
 
-  private _customKeyEventHandler: CustomKeyEventHandler;
+  private _customKeyEventHandler: CustomKeyEventHandler[];
 
   // modes
   public applicationKeypad: boolean;
@@ -1400,7 +1400,8 @@ export class Terminal extends EventEmitter implements ITerminal, IDisposable, II
    * the event should be processed by xterm.js.
    */
   public attachCustomKeyEventHandler(customKeyEventHandler: CustomKeyEventHandler): void {
-    this._customKeyEventHandler = customKeyEventHandler;
+    if (!this._customKeyEventHandler) this._customKeyEventHandler = []
+    this._customKeyEventHandler.push(customKeyEventHandler);
   }
 
   /** Add handler for CSI escape sequence. See xterm.d.ts for details. */
@@ -1515,7 +1516,7 @@ export class Terminal extends EventEmitter implements ITerminal, IDisposable, II
    * @param ev The keydown event to be handled.
    */
   protected _keyDown(event: KeyboardEvent): boolean {
-    if (this._customKeyEventHandler && this._customKeyEventHandler(event) === false) {
+    if (this._customKeyEventHandler && this._customKeyEventHandler.some(h => h(event) === false)) {
       return false;
     }
 
@@ -1614,7 +1615,7 @@ export class Terminal extends EventEmitter implements ITerminal, IDisposable, II
   protected _keyPress(ev: KeyboardEvent): boolean {
     let key;
 
-    if (this._customKeyEventHandler && this._customKeyEventHandler(ev) === false) {
+    if (this._customKeyEventHandler && this._customKeyEventHandler.some(h => h(ev) === false)) {
       return false;
     }
 
